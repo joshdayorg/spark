@@ -1,0 +1,41 @@
+flowchart TB
+
+  subgraph EXT["External Sources"]
+    WH["Universal Webhooks\n(native, e.g. GitHub org webhook)"]
+    COMP["Composio Triggers\n(metadata.user_id = orgId)"]
+    API["Direct API Push\n(Authorization: Bearer api_key)"]
+    MCPP["MCP spark_push\n(external agent write)"]
+  end
+
+  INGEST["Unified Ingestion Gateway\nPOST /ingest (Convex HTTP Action)"]
+
+  subgraph NORM["Source Detection + Verification + Normalization"]
+    DETECT["Detect source\n(headers/body)"]
+    VERIFY["Verify auth\nGitHub sig / Composio HMAC / API key"]
+    MAP["Map to normalized event shape\norgId, source, via, type, actor, summary, timestamp, raw, processed=false"]
+  end
+
+  EVENTS[("events table\nsource-agnostic")]
+
+  subgraph FANOUT["Smart Fan-out Scheduler"]
+    CRON["Cron every 5 min"]
+    QUERY["Query orgIds with\nprocessed=false"]
+    EXTRACT["scheduler.runAfter(0, extractForOrg, {orgId})"]
+  end
+
+  WH --> INGEST
+  COMP --> INGEST
+  API --> INGEST
+  MCPP --> INGEST
+
+  INGEST --> DETECT --> VERIFY --> MAP --> EVENTS
+  EVENTS --> QUERY
+  CRON --> QUERY --> EXTRACT
+
+  classDef edge fill:#fff7e8,stroke:#f59e0b,stroke-width:1px;
+  classDef data fill:#e8f1ff,stroke:#3b82f6,stroke-width:1px;
+  classDef ai fill:#f4e8ff,stroke:#a855f7,stroke-width:1px;
+
+  class WH,COMP,API,MCPP,INGEST edge;
+  class EVENTS,MAP data;
+  class CRON,QUERY,EXTRACT,DETECT,VERIFY ai;

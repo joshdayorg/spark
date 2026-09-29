@@ -1,0 +1,27 @@
+node_modules/
+
+.env
+.env.*
+.env.local
+!.env.example
+!.env.*.example
+
+# Local agent/process artifacts — must never land in the public tree.
+# Un-ignore deliberately if that policy ever changes.
+.agents/
+.claude/
+.hermes/
+.cursor/
+.codex/
+audit-reports/
+skills-lock.json
+AGENTS.md
+CLAUDE.md
+.convex/
+
+# Convex CLI state that is local to one machine
+convex/_generated/ai/ai-files.state.json
+
+# Logs and OS noise
+*.log
+.DS_Store

@@ -1,0 +1,58 @@
+{
+  "name": "spark",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Your company, as an MCP server. Headless Convex backend that turns team signals into a cited, self-updating knowledge base you query from any MCP client.",
+  "scripts": {
+    "test": "bash scripts/verify-all.sh",
+    "test:behavior": "vitest run",
+    "typecheck": "convex codegen --typecheck enable",
+    "typecheck:offline": "tsc -p convex/tsconfig.json --noEmit",
+    "codegen": "convex codegen --typecheck disable"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joshdayorg/spark.git"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "convex",
+    "knowledge-base",
+    "ai-agents",
+    "anthropic",
+    "claude",
+    "composio",
+    "clerk",
+    "typescript"
+  ],
+  "author": "Josh Day",
+  "license": "MIT",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/joshdayorg/spark/issues"
+  },
+  "homepage": "https://github.com/joshdayorg/spark#readme",
+  "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.69",
+    "@ai-sdk/openai": "^3.0.53",
+    "@anthropic-ai/sdk": "^0.89.0",
+    "@clerk/backend": "^3.2.11",
+    "@composio/core": "^0.9.1",
+    "@convex-dev/agent": "^0.6.1",
+    "@convex-dev/rag": "^0.7.2",
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "ai": "^6.0.35",
+    "cohere-ai": "^7.0.0",
+    "convex": "^1.24.8",
+    "convex-helpers": "^0.1.103",
+    "js-tiktoken": "^1.0.21",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@edge-runtime/vm": "^5.0.0",
+    "convex-test": "^0.0.54",
+    "typescript": "^5.7.0",
+    "vitest": "^4.1.11"
+  }
+}

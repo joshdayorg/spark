@@ -1,0 +1,91 @@
+flowchart TB
+
+  subgraph LEGEND["Legend"]
+    LDIR["Direct Anthropic API call"]
+    LOUT["AI-derived artifact\n(created by AI, stored/served here)"]
+    LSYS["Non-AI system / plumbing"]
+  end
+
+  subgraph UI["User Surfaces (Vercel + Convex subscriptions)"]
+    CHAT["Chat"]
+    PULSE["Pulse"]
+    KNOW["Knowledge"]
+    AGENTS_UI["Agents"]
+    FVIEW["Findings"]
+    SETTINGS["Settings"]
+  end
+
+  subgraph CTRL["Spark Control Plane (Convex + Clerk)"]
+    INGEST["Unified Ingestion Gateway\nConvex HTTP Action"]
+    EVENTS[("events table\nnormalized + org scoped")]
+    SESS[("sessions / live context")]
+    KB[("Knowledge Base\nCompiled Truth + Evidence Timeline\nBM25 + Vector + RRF")]
+    FIND[("Findings records")]
+    ORG[("Org / Team / Connection config")]
+
+    CRON["Smart fan-out scheduler"]
+    CHAT_ENGINE["Spark Chat runtime\nConvex action + tools"]
+    EXTRACT["Extractor job"]
+    SYNTH["Synthesizer job"]
+    CUST_WRAP["Customer agent wrapper"]
+    DREAM_WRAP["Dream Cycle wrapper"]
+
+    MCP["MCP Server\nspark_search · spark_ask · spark_entity · spark_push"]
+  end
+
+  subgraph ANTH["Anthropic APIs (execution runtime)"]
+    MSG["Messages API\nChat + Extractor + Synthesizer"]
+    MA["Managed Agents API\nCustomer Agents + Dream Cycle"]
+  end
+
+  subgraph EXT["External Systems"]
+    WH["Universal Webhooks"]
+    COMP["Composio Integration Layer\n1000+ Connectors"]
+    PUSH["Direct API Push"]
+    XAGENT["External Agents / Apps"]
+  end
+
+  WH --> INGEST
+  COMP --> INGEST
+  PUSH --> INGEST
+  INGEST --> EVENTS --> SESS
+
+  EVENTS --> CRON --> EXTRACT --> MSG --> EXTRACT --> KB
+  KB --> SYNTH --> MSG --> SYNTH --> KB
+
+  CHAT --> CHAT_ENGINE
+  PULSE --> CHAT_ENGINE
+  CHAT_ENGINE --> MSG --> CHAT_ENGINE
+  CHAT_ENGINE --> KB
+  SESS --> CHAT_ENGINE
+
+  AGENTS_UI --> CUST_WRAP --> MA --> CUST_WRAP --> FIND --> KB
+  KB --> DREAM_WRAP --> MA --> DREAM_WRAP --> FIND
+
+  CUST_WRAP --> COMP
+  DREAM_WRAP --> COMP
+
+  KB --> KNOW
+  FIND --> FVIEW
+  COMP --> ORG --> SETTINGS
+
+  XAGENT --> MCP
+  MCP --> KB
+  MCP --> INGEST
+  MCP -. "spark_ask" .-> MSG
+
+  classDef directAI fill:#d8b4fe,stroke:#7e22ce,stroke-width:2px,color:#2b1147;
+  classDef aiOutput fill:#f3e8ff,stroke:#7e22ce,stroke-width:2px,stroke-dasharray:6 4,color:#2b1147;
+  classDef system fill:#e8f1ff,stroke:#2563eb,stroke-width:1px;
+  classDef ui fill:#e8fff0,stroke:#16a34a,stroke-width:1px;
+  classDef integration fill:#fff7e8,stroke:#f59e0b,stroke-width:1px;
+
+  class LDIR directAI;
+  class LOUT aiOutput;
+  class LSYS system;
+
+  class CHAT_ENGINE,EXTRACT,SYNTH,CUST_WRAP,DREAM_WRAP,MSG,MA,MCP directAI;
+  class KB,FIND aiOutput;
+  class INGEST,EVENTS,SESS,ORG,CRON system;
+  class CHAT,PULSE,KNOW,AGENTS_UI,FVIEW,SETTINGS ui;
+  class WH,COMP,PUSH,XAGENT integration;
